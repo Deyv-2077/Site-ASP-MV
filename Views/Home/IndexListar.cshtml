@@ -1,0 +1,62 @@
+﻿@model List<MVCApp2.Models.Customer>
+
+ 
+<!--   ViewData["Title"] = "Home Page"; -->
+
+
+
+
+<div class="text-center">
+    <h1> <a href="@Url.Action("IndexCustomers", "Customers")" class="nav-link text-dark">Welcome</a> </h1>
+</div>
+
+<div class="table-responsive">
+
+    <table class= "table table-bordered table-striped">
+
+        <thead>
+
+            <tr>
+                <!-- <th>ID</th> -->
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Address</th>
+
+            </tr>
+        </thead>
+   
+        <tbody>
+
+            @foreach (var item in Model)
+            {
+
+                <tr>
+
+                    <!-- <td>cliente.Id</td> -->
+                    <td>@item.Name</td>
+                    <td>@item.Email</td>
+                    <td>@item.Address</td>
+                <td>
+
+                        <a asp-action="Create" asp-controller="Customers" asp-route-id="@item.Id">Create</a> |
+                        <a asp-action="Edit" asp-controller="Customers" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Details" asp-controller="Customers" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="Delete" asp-controller="Customers" asp-route-id="@item.Id">Delete</a>
+
+
+                        <!--  <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+ |
+                                        < a asp - action = "Delete" asp - route - id = "@item.Id" > Delete </ a >  -->
+                </td>
+                </tr>
+
+            }
+
+        </tbody>
+    </table>
+</div>
+
+
+
+<!-- <h1 class="display-4">Welcome</h1> -->
+<!-- <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p> -->

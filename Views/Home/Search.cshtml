@@ -1,0 +1,76 @@
+﻿@{
+    Layout = null;
+}
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+</head>
+
+<input type="text" id="searchInput" />
+<button id="searchButton">Pesquisar</button>
+
+@if (Model != null && Model.Count > 0)
+{
+    <h2>Resultados da Pesquisa</h2>
+   
+<div class="table-responsive">
+
+    <table class= "table table-bordered table-striped">
+       
+        <thead>
+            
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Address</th>
+            
+            </tr>
+        
+        </thead>
+        
+       <tbody>
+
+            @foreach (var customer in Model ?? Enumerable.Empty<Customer>())
+            {
+                <tr>
+                    <td>@customer.Name</td>
+                    <td>@customer.Email</td>
+                    <td>@customer.Address</td>
+                </tr>
+            }
+        
+        </tbody>
+    </table>    
+</div>
+
+}
+else
+{
+    <p>Nenhum resultado encontrado.</p>
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#searchButton').click(function () {
+            executeSearch();
+        });
+
+        $('#searchInput').on('keypress', function (e) {
+            if (e.which === 13) {
+                executeSearch();
+            }
+        });
+
+        function executeSearch() {
+            var query = $('#searchInput').val();
+            if (query.length >= 3) {
+                // Redirecionar para a ação Search no HomeController
+                window.location.href = '/Home/Search?query=' + encodeURIComponent(query);
+            }
+        }
+    });
+</script>
