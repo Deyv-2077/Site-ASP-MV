@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using MVCApp2.Migrations;
 using MVCApp2.Models;
 using System.Diagnostics;
 
@@ -16,6 +17,7 @@ namespace MVCApp2.Controllers
         {
             _context = context;
             _logger = logger;
+            
         }
 
 
@@ -28,7 +30,7 @@ namespace MVCApp2.Controllers
             }
 
             var results = _context.Customers
-                .Where(c => c.Name == query || c.Address == query)
+                .Where(c => c.Name.StartsWith(query.Substring(0, 1)) || c.Address == query)
                 .ToList();
 
             return View("Search", results);
@@ -36,7 +38,10 @@ namespace MVCApp2.Controllers
 
 
 
-
+        public IActionResult Home1()
+        {
+            return View();
+        }
 
 
 
@@ -52,7 +57,33 @@ namespace MVCApp2.Controllers
             return View();
         }
 
-       
+        [HttpPost]
+        public IActionResult Entrar(LoginModel loginModel, UserModel2 userBd)
+        {
+            try
+            {
+                if(loginModel.Login == userBd.Login && loginModel.Senha == userBd.Senha)
+                {
+
+                    return View("Custome","Customerss");
+
+
+                }
+
+                return View("IndexListar");
+            }
+            catch (Exception erro) 
+            {
+
+                TempData["MensagemErro"] = $"Ops, não conseguimos realizar o seu login: {erro.Message}";
+                return RedirectToAction("Index");
+
+
+            }
+
+        }
+
+
         public IActionResult Privacy()
         {
             return View();

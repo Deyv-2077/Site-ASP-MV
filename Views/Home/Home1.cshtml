@@ -1,0 +1,108 @@
+﻿@model MVCApp2.Models.LoginModel
+
+@{
+    Layout = "_LayoutHome1";
+}
+
+<body>
+    <style>
+
+        <!--
+        .bg-image {
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            height: 100vh;
+            position: relative;
+        }
+
+            .bg-image::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.8);
+            }
+
+            -->
+
+        h1 {
+            font-family: "Montserrat", sans-serif;
+        }
+
+
+        .login-form {
+            width: 300px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+            .login-form .form-group {
+                margin-bottom: 15px;
+            }
+
+            .login-form label {
+                color: black;
+                font-size: 15px;
+            }
+
+            .login-form input {
+                padding: 10px;
+                font-size: 12px;
+            }
+
+            .login-form .btn-login {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+        /* Estilos para o rodapé 
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+                */
+    </style>
+
+    <div class="overlay"></div>
+
+    <div>
+        <div class="login-form rounded">
+            <div class="text-center">
+                <h1 class="fw-bold">Stock System</h1>
+            </div>
+            <form asp-controller="Customers" asp-action="Entrar" method="post">
+                <div class="form-group">
+                    <label for="login">Login</label>
+                    <input type="text" asp-for="Login" class="form-control" id="login" aria-describedby="emailHelp" placeholder="User">
+                    @Html.ValidationMessageFor(x => x.Login)
+                </div>
+                <div class="form-group">
+                    <label for="senha">Password</label>
+                    <input type="password" asp-for="Senha" class="form-control" id="senha" placeholder="Password">
+                    @Html.ValidationMessageFor(x => x.Senha)
+                </div>
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary btn-login">Login</button>
+                </div>
+            </form>
+        </div>
+
+        <footer>
+            <!-- Conteúdo do rodapé -->
+        </footer>
+    </div>
+</body>

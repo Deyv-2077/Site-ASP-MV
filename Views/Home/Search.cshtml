@@ -1,4 +1,6 @@
-﻿@{
+﻿@model IEnumerable<MVCApp2.Models.Customer>
+
+@{
     Layout = null;
 }
 
@@ -6,46 +8,37 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Search</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
 </head>
 
 <input type="text" id="searchInput" />
 <button id="searchButton">Pesquisar</button>
 
-@if (Model != null && Model.Count > 0)
+@if (Model != null && Model.Count() > 0)
 {
     <h2>Resultados da Pesquisa</h2>
-   
-<div class="table-responsive">
 
-    <table class= "table table-bordered table-striped">
-       
-        <thead>
-            
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Address</th>
-            
-            </tr>
-        
-        </thead>
-        
-       <tbody>
-
-            @foreach (var customer in Model ?? Enumerable.Empty<Customer>())
-            {
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
                 <tr>
-                    <td>@customer.Name</td>
-                    <td>@customer.Email</td>
-                    <td>@customer.Address</td>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Address</th>
                 </tr>
-            }
-        
-        </tbody>
-    </table>    
-</div>
-
+            </thead>
+            <tbody>
+                @foreach (var customer in Model)
+                {
+                    <tr>
+                        <td>@customer.Name</td>
+                        <td>@customer.Email</td>
+                        <td>@customer.Address</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 else
 {

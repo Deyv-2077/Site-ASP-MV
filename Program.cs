@@ -1,5 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using MVCApp2.Models;
+using MVCApp2.Repositorio;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,10 +15,19 @@ builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
+
+
+
 var app = builder.Build();
+
+
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -42,6 +56,8 @@ app.MapControllerRoute(
 
 // Outras rotas
 
+
+
 app.MapControllerRoute(
     name: "Search",
     pattern: "Search/{query?}",
@@ -53,6 +69,13 @@ app.MapControllerRoute(
     pattern: "Products",
     defaults: new { controller = "Products", action = "IndexProducts" });
 
+
+app.MapControllerRoute(
+    name: "CustomersCreate",
+    pattern: "Customers/Create",
+    defaults: new { controller = "Customers", action = "Create" });
+
+
 app.MapControllerRoute(
     name: "Customers",
     pattern: "Customers",
@@ -60,6 +83,9 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=IndexListar}/{id?}");
+    pattern: "{controller=Home}/{action=Home1}/{id?}");
+
+
+
 
 app.Run();

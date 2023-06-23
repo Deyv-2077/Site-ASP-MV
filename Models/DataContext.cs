@@ -20,6 +20,8 @@ namespace MVCApp2.Models
 
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<UserModel2> Users { get; set; }
+
 
     }
 }

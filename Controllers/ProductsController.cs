@@ -21,7 +21,7 @@ namespace MVCApp2.Controllers
         // GET: Products
         public async Task<IActionResult> IndexProducts()
         {
-              return _context.Products != null ? 
+              return _context.Products != null ?
                           View(await _context.Products.ToListAsync()) :
                           Problem("Entity set 'DataContext.Products'  is null.");
         }
@@ -55,7 +55,7 @@ namespace MVCApp2.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Address")] Product product)
+        public async Task<IActionResult> Create([Bind("Id,Name,Address,Valor,Quantidade")] Product product)
         {
             if (ModelState.IsValid)
             {
@@ -87,7 +87,7 @@ namespace MVCApp2.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Address,Valor,Quantidade")] Product product)
         {
             if (id != product.Id)
             {
