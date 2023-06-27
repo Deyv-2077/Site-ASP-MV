@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using MVCApp2.Helper;
 using MVCApp2.Migrations;
 using MVCApp2.Models;
+using MVCApp2.Repositorio;
 using System.Diagnostics;
 
 namespace MVCApp2.Controllers
@@ -10,14 +12,19 @@ namespace MVCApp2.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
+        private readonly IUsuarioRepositorio _usuarioRepositorio;
+
+        private readonly ISessao _sessao;
+
         private readonly DataContext _context;
 
 
-        public HomeController(DataContext context, ILogger<HomeController> logger)
+        public HomeController(IUsuarioRepositorio usuarioRepositorio, DataContext context, ISessao sessao, ILogger<HomeController> logger)
         {
+            _usuarioRepositorio = usuarioRepositorio;
             _context = context;
             _logger = logger;
-            
+            _sessao = sessao;
         }
 
 

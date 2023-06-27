@@ -1,0 +1,51 @@
+﻿@model Dictionary<int, int>
+
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+
+    Layout = "_LayoutProducts";
+}
+
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Números Repetidos</title>
+</head>
+
+<body>
+
+
+
+
+
+<h2>Imprimindo números de 0 a 100 </h2>
+
+
+
+    <table>
+        <tr>
+            <th>Número</th>
+            <th>Ocorrências</th>
+        </tr>
+        @foreach (var ocorrencia in ViewBag.Ocorrencias)
+        {
+            if (ocorrencia.Value > 1)
+            {
+                <tr>
+                    <td>@ocorrencia.Key</td>
+                    <td>@ocorrencia.Value</td>
+                </tr>
+            }
+        }
+    </table>
+
+
+    
+
+
+
+
+
+
+</body>

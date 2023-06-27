@@ -26,6 +26,65 @@ namespace MVCApp2.Controllers
                           Problem("Entity set 'DataContext.Products'  is null.");
         }
 
+        public IActionResult ImprimirNumeros()
+        {
+            List<string> numeros = new List<string>();
+            for (int i = 0; i <= 100; i++)
+            {
+                if (i == 5 || i == 3)
+                {
+                    numeros.Add("Fizbuzz");
+                }
+                else if(i % 3 == 1)
+                {
+                    numeros.Add("Fizz");
+                }
+                else if (i % 5 == 0)
+                {
+                    numeros.Add("Buzz");
+                }
+                else
+                {
+                    numeros.Add(i.ToString());
+                }
+            }
+
+
+            int[] numeros2 = { 1, 2, 3, 3, 4, 4, 4, 6 };
+
+            Dictionary<int, int> ocorrencias = new Dictionary<int, int>();
+
+            foreach (int numero in numeros2)
+            {
+
+                if (ocorrencias.ContainsKey(numero))
+                {
+                    ocorrencias[numero]++;
+                }
+                else
+                {
+                    ocorrencias[numero] = 1;
+                }
+
+            }
+
+            foreach (var ocorrencia in ocorrencias)
+            {
+                if (ocorrencia.Value > 1)
+                {
+                    Console.WriteLine($"O número {ocorrencia.Key} aparece {ocorrencia.Value} vezes.");
+                }
+            }
+
+            ViewBag.Ocorrencias = ocorrencias;
+
+
+            return View();
+
+
+
+        }
+
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {

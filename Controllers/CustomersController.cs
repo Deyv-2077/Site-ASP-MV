@@ -11,7 +11,7 @@ using MVCApp2.Repositorio;
 using System.Data.SqlClient;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using System.Drawing;
-
+using MVCApp2.Helper;
 
 namespace MVCApp2.Controllers
 {
@@ -20,10 +20,10 @@ namespace MVCApp2.Controllers
         private readonly DataContext _context;
         private readonly IUsuarioRepositorio _usuarioRepositorio;
         private readonly ILogger<CustomersController> _logger;
+        private readonly ISessao _sessao;
+      
 
-
-
-        public CustomersController(DataContext context, ILogger<CustomersController> logger, IUsuarioRepositorio usuarioRepositorio)
+        public CustomersController(DataContext context, ILogger<CustomersController> logger, IUsuarioRepositorio usuarioRepositorio, ISessao sessao)
         {
             _context = context;
 
@@ -32,6 +32,9 @@ namespace MVCApp2.Controllers
 
 
             _usuarioRepositorio = usuarioRepositorio;
+
+            _sessao = sessao;
+
 
 
         }
@@ -127,6 +130,7 @@ namespace MVCApp2.Controllers
 
                         if (count > 0)
                         {
+                                //_sessao.CriarSessaoDoUsuario(loginModel);
                             return RedirectToAction("IndexProducts", "Products");
                         }
                     }

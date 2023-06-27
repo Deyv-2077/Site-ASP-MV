@@ -3,8 +3,7 @@ using MVCApp2.Models;
 using MVCApp2.Repositorio;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
-
-
+using MVCApp2.Helper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,11 +16,22 @@ builder.Services.AddDbContext<DataContext>(options =>
 });
 
 
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
 
+builder.Services.AddScoped<ISessao, Sessao>();
+builder.Services.AddSession(o =>
+{
+    o.Cookie.HttpOnly = true;
+    o.Cookie.IsEssential = true;
+});
+
+
+
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 
 var app = builder.Build();
@@ -44,6 +54,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+app.UseSession();
 
 app.UseRouting();
 
@@ -68,6 +79,14 @@ app.MapControllerRoute(
     name: "Products",
     pattern: "Products",
     defaults: new { controller = "Products", action = "IndexProducts" });
+
+
+app.MapControllerRoute(
+    name: "ImprimirNumeros",
+    pattern: "Products/ImprimirNumeros",
+    defaults: new { controller = "Products", action = "ImprimirNumeros" }
+);
+
 
 
 app.MapControllerRoute(
