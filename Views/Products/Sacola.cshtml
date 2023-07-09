@@ -51,12 +51,14 @@
                                 <p>@nome</p>
                                 <p>Valor: R$ @valorString</p>
                                 <p>Quantidade: @quantidadeString</p>
+                                <button class="btn btn-sm btn-danger remove-item" data-name="@nome" data-valor="@valorString" data-quantidade="@quantidadeString">Remover</button>
                             </li>
 
                             <br /> <!-- Adicione esta linha para criar um espaço entre os itens -->
                         }
                     }
                 }
+
             </ul>
         }
         else
@@ -91,7 +93,7 @@
     </div>
 </div>
 
-<div class="fixed-total">
+<div class="fixed-total" id="fixedTotal">
     <div class="text-center">
         <p class="h4">Total de produtos: @totalQuantidade</p>
         <p class="h4">Total a pagar: R$ @total</p>
@@ -100,6 +102,29 @@
 
 @section Scripts {
     <script>
+        document.querySelectorAll('.remove-item').forEach(function (button) {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (confirm('Deseja remover este item da sacola?')) {
+                    var li = button.parentNode;
+                    var nome = button.dataset.name;
+                    var valorString = button.dataset.valor;
+                    var quantidadeString = button.dataset.quantidade;
+
+                    // Remover o item da lista visualmente
+                    li.parentNode.removeChild(li);
+
+                    // Atualizar o total e a quantidade
+                    total -= parseFloat(valorString.replace(',', '.')) * parseInt(quantidadeString);
+                    totalQuantidade -= parseInt(quantidadeString);
+
+                    // Atualizar o texto do total e da quantidade
+                    document.querySelector('#fixedTotal .h4:first-child').textContent = 'Total de produtos: ' + totalQuantidade;
+                    document.querySelector('#fixedTotal .h4:last-child').textContent = 'Total a pagar: R$ ' + total.toFixed(2);
+                }
+            });
+        });
+
         document.getElementById("adicionarItemForm").addEventListener("submit", function (e) {
             e.preventDefault();
             if (confirm("Deseja adicionar este item à sacola?")) {
