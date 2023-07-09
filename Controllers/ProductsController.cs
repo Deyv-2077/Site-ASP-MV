@@ -5,10 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using MVCApp2.Filtros;
 using MVCApp2.Models;
 
 namespace MVCApp2.Controllers
 {
+    [PaginaParaUsuarioLogado]
+
     public class ProductsController : Controller
     {
         private readonly DataContext _context;
@@ -21,9 +24,9 @@ namespace MVCApp2.Controllers
         // GET: Products
         public async Task<IActionResult> IndexProducts()
         {
-              return _context.Products != null ?
-                          View(await _context.Products.ToListAsync()) :
-                          Problem("Entity set 'DataContext.Products'  is null.");
+            return _context.Products != null ?
+                        View(await _context.Products.ToListAsync()) :
+                        Problem("Entity set 'DataContext.Products'  is null.");
         }
 
         public IActionResult ImprimirNumeros()
@@ -35,7 +38,7 @@ namespace MVCApp2.Controllers
                 {
                     numeros.Add("Fizbuzz");
                 }
-                else if(i % 3 == 1)
+                else if (i % 3 == 1)
                 {
                     numeros.Add("Fizz");
                 }
@@ -124,6 +127,9 @@ namespace MVCApp2.Controllers
             }
             return View(product);
         }
+    
+
+
 
         // GET: Products/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -134,6 +140,27 @@ namespace MVCApp2.Controllers
             }
 
             var product = await _context.Products.FindAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return View(product);
+        }
+
+
+        // GET: Products/Vender/5
+        //[Route("Products/Vender/{id}")]
+        [HttpGet]
+        public async Task<IActionResult> Vender(int? id)
+        {
+            if (id == null || _context.Products == null)
+            {
+                return NotFound();
+            }
+
+            var product = await _context.Products.FindAsync(id);
+            product.Quantidade = 0;
+
             if (product == null)
             {
                 return NotFound();
@@ -175,6 +202,140 @@ namespace MVCApp2.Controllers
             }
             return View(product);
         }
+
+
+        [HttpPost, ActionName("VenderConfirmado")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VenderConfirmado(int id, [Bind("Id,Name,Address,Valor,Quantidade")] Product product)
+        {
+            if (id != product.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var existingProduct = await _context.Products.FindAsync(id);
+                    int quantidadeNoBanco = existingProduct.Quantidade;
+
+                    if (product.Quantidade > quantidadeNoBanco)
+                    {
+                        ModelState.AddModelError("Quantidade", "A quantidade desejada não está disponível.");
+                        return View(product);
+                    }
+
+                    int subtrairQuantidade = quantidadeNoBanco - product.Quantidade;
+                    existingProduct.Quantidade = subtrairQuantidade;
+
+                    _context.Update(existingProduct);
+                    await _context.SaveChangesAsync();
+
+                    var produtoNaSacola = $"{existingProduct.Name}\nValor: {existingProduct.Valor}\nQuantidade: {product.Quantidade}";
+
+                    // Obter os produtos da sacola do cookie
+                    string produtosNaSacola = HttpContext.Request.Cookies["ProdutosNaSacola"];
+                    List<string> produtos = produtosNaSacola?.Split(';').ToList() ?? new List<string>();
+
+                    // Adicionar o novo produto à lista de produtos da sacola
+                    produtos.Add(produtoNaSacola);
+
+                    // Armazenar a lista de produtos da sacola em um cookie
+                    HttpContext.Response.Cookies.Append("ProdutosNaSacola", string.Join(";", produtos));
+
+                    return RedirectToAction("Sacola");
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ProductExists(product.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            return View(product);
+        }
+
+
+        public IActionResult Sacola()
+        {
+            string produtosNaSacola = HttpContext.Request.Cookies["ProdutosNaSacola"];
+            List<string> produtos = produtosNaSacola?.Split(';').ToList() ?? new List<string>();
+
+            return View(produtos);
+        }
+
+
+
+        /*  [HttpPost, ActionName("VenderConfirmado")]
+          [ValidateAntiForgeryToken]
+          public async Task<IActionResult> VenderConfirmado(int id, [Bind("Id,Name,Address,Valor,Quantidade")] Product product)
+          {
+              if (id != product.Id)
+              {
+                  return NotFound();
+              }
+
+              if (ModelState.IsValid)
+              {
+                  try
+                  {
+                      //Pegar os valores de todas as colunas no banco 
+                      var existingProduct = await _context.Products.FindAsync(id);
+                      //Guardando a quantidade existente da coluna Quantidade no banco de dados na variável
+                      int quantidadeNoBanco = existingProduct.Quantidade;
+
+                      //product.Quantidade é o que foi digitado no form-group
+                      int subtrairQuantidade = quantidadeNoBanco - product.Quantidade;
+                      //Agora pegando o resultado da subtração e passando para a propriedade Quantidade
+                      existingProduct.Quantidade = subtrairQuantidade;
+                      //Agora mandando o objeto atualizar no banco de dados
+                      if (existingProduct.Quantidade < 0)
+                      {
+                          return NotFound();
+
+                      }
+                      else
+                      {
+                          _context.Update(existingProduct);
+                          await _context.SaveChangesAsync();
+
+
+                          var produtoNaSacola = new Product
+                          {
+                              Name = existingProduct.Name,
+                              Valor = existingProduct.Valor,
+                              Quantidade = product.Quantidade
+                          };
+
+                          TempData["ProdutoNaSacola"] = produtoNaSacola;
+
+                          return RedirectToAction("Sacola");
+                      }
+                  }
+                  catch (DbUpdateConcurrencyException)
+                  {
+                      if (!ProductExists(product.Id))
+                      {
+                          return NotFound();
+                      }
+                      else
+                      {
+                          throw;
+                      }
+                  }
+                  return RedirectToAction(nameof(IndexProducts));
+              }
+              return View(product);
+          }
+
+          */
 
         // GET: Products/Delete/5
         public async Task<IActionResult> Delete(int? id)

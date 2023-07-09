@@ -1,0 +1,26 @@
+﻿@model List<string>
+
+@{
+    Layout = "_LayoutProducts";
+
+    ViewData["Title"] = "Sacola";
+}
+
+<h1>Sacola</h1>
+
+@if (Model.Any())
+{
+    <h3>Produtos na Sacola:</h3>
+    <ul>
+        @foreach (var produto in Model)
+        {
+            <li>
+                <p>@produto</p>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>Nenhum produto na sacola.</p>
+}

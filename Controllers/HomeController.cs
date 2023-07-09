@@ -5,6 +5,7 @@ using MVCApp2.Migrations;
 using MVCApp2.Models;
 using MVCApp2.Repositorio;
 using System.Diagnostics;
+using MVCApp2.Filtros;
 
 namespace MVCApp2.Controllers
 {
@@ -47,6 +48,7 @@ namespace MVCApp2.Controllers
 
         public IActionResult Home1()
         {
+            if(_sessao.BuscarSessaoDoUsuario() != null) return RedirectToAction("Index", "Search");
             return View();
         }
 

@@ -12,9 +12,12 @@ using System.Data.SqlClient;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using System.Drawing;
 using MVCApp2.Helper;
+using MVCApp2.Filtros;
 
 namespace MVCApp2.Controllers
 {
+    [PaginaParaUsuarioLogado]
+
     public class CustomersController : Controller
     {
         private readonly DataContext _context;
@@ -108,11 +111,11 @@ namespace MVCApp2.Controllers
           //Este método identifica que ao fazer o login, os valores digitados em login e senha serão
             //comparados com os valores que existem no BD e se identificar os valores iguais nas colunas, o login será efetuado
         //mas se tiver valores nulos ou vazios o login não será permitido.
-    public IActionResult Entrar(LoginModel loginModel, UserModel2 userBd)
+    public IActionResult Entrar(UserModel2 userModel, UserModel2 userBd)
     {
         if (ModelState.IsValid)
         {
-            if (!string.IsNullOrEmpty(loginModel.Login) && !string.IsNullOrEmpty(loginModel.Senha))
+            if (!string.IsNullOrEmpty(userModel.Login) && !string.IsNullOrEmpty(userModel.Senha))
             {
                     string connectionString = "Server = localhost; Database = MVCApp2; Encrypt = False; Trusted_Connection = true;";
                 string query = "SELECT COUNT(*) FROM Users WHERE login = @Login AND senha = @Senha;";
@@ -123,14 +126,14 @@ namespace MVCApp2.Controllers
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@Login", loginModel.Login);
-                        command.Parameters.AddWithValue("@Senha", loginModel.Senha);
+                        command.Parameters.AddWithValue("@Login", userModel.Login);
+                        command.Parameters.AddWithValue("@Senha", userModel.Senha);
 
                         int count = (int)command.ExecuteScalar();
 
                         if (count > 0)
                         {
-                                //_sessao.CriarSessaoDoUsuario(loginModel);
+                                _sessao.CriarSessaoDoUsuario(userModel);
                             return RedirectToAction("IndexProducts", "Products");
                         }
                     }
@@ -175,16 +178,16 @@ namespace MVCApp2.Controllers
         
         [HttpPost]
         [ValidateAntiForgeryToken]
-       // public async Task<IActionResult> Create([Bind("Id,Name,Login,Senha,Email,Perfil,DataCadastro,DataAtualizacao")] UserModel2 user)
-        public UserModel2 Create([Bind("Id,Name,Login,Senha,Email,Perfil,DataCadastro,DataAtualizacao")] UserModel2 user)
+        // public async Task<IActionResult> Create([Bind("Id,Name,Login,Senha,Email,Perfil,DataCadastro,DataAtualizacao")] UserModel2 user)
+        public UserModel2 Create([Bind("Id,Name,Login,Senha,Email,Perfil,DataCadastro,DataAtualizacao")] UserModel2 userModel)
         {
 
-            user.DataCadastro = DateTime.Now;
-            user.DataAtualizacao = DateTime.Now;
+            userModel.DataCadastro = DateTime.Now;
+            userModel.DataAtualizacao = DateTime.Now;
 
-            _context.Users.Add(user);
+            _context.Users.Add(userModel);
                     _context.SaveChanges();
-                    return user;
+                    return userModel;
             
 
         }

@@ -9,8 +9,11 @@ namespace MVCApp2.Models
 
         [Display(Name = "Nome")]
         public string? Name { get; set; }
-        public string Address { get; set; }
+
+        [DisplayFormat(DataFormatString = "{0:N2}", ApplyFormatInEditMode = true)]
         public decimal Valor { get; set; }
+
+        [Range(0, int.MaxValue, ErrorMessage = "A quantidade deve ser um valor não negativo.")]
         public int Quantidade { get; set; }
 
 

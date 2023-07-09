@@ -4,6 +4,8 @@ using MVCApp2.Repositorio;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using MVCApp2.Helper;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc.ViewFeatures.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,16 +82,21 @@ app.MapControllerRoute(
     pattern: "Products",
     defaults: new { controller = "Products", action = "IndexProducts" });
 
-
 app.MapControllerRoute(
-    name: "ImprimirNumeros",
-    pattern: "Products/ImprimirNumeros",
-    defaults: new { controller = "Products", action = "ImprimirNumeros" }
-);
+    name: "Products",
+    pattern: "Products/Vender/{id}",
+    defaults: new { controller = "Products", action = "Vender" });
+
+
+  //app.MapControllerRoute(
+  // name: "ImprimirNumeros",
+  //pattern: "Products/ImprimirNumeros",
+  //defaults: new { controller = "Products", action = "ImprimirNumeros" }
+  //);
 
 
 
-app.MapControllerRoute(
+  app.MapControllerRoute(
     name: "CustomersCreate",
     pattern: "Customers/Create",
     defaults: new { controller = "Customers", action = "Create" });
