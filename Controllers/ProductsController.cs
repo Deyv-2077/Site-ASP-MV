@@ -236,7 +236,7 @@ namespace MVCApp2.Controllers
 
                     // Obter os produtos da sacola do cookie
                     string produtosNaSacola = HttpContext.Request.Cookies["ProdutosNaSacola"];
-                    List<string> produtos = produtosNaSacola?.Split('\n').ToList() ?? new List<string>();
+                    List<string> produtos = produtosNaSacola?.Split(';').ToList() ?? new List<string>();
 
                     // Adicionar o novo produto à lista de produtos da sacola
                     produtos.Add(produtoNaSacola);
@@ -263,13 +263,42 @@ namespace MVCApp2.Controllers
         }
 
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AdicionarItemSacola(Product product)
+        {
+            if (ModelState.IsValid)
+            {
+                var produtoNaSacola = $"{product.Name}\nValor: R$ {product.Valor}\nQuantidade: {product.Quantidade}";
+
+                // Obter os produtos da sacola do cookie
+                string produtosNaSacola = HttpContext.Request.Cookies["ProdutosNaSacola"];
+                List<string> produtos = produtosNaSacola?.Split(';').ToList() ?? new List<string>();
+
+                // Adicionar o novo produto à lista de produtos da sacola
+                produtos.Add(produtoNaSacola);
+
+                // Armazenar a lista de produtos da sacola em um cookie
+                HttpContext.Response.Cookies.Append("ProdutosNaSacola", string.Join(";", produtos));
+
+                return RedirectToAction("Sacola");
+            }
+
+            return View(product);
+        }
+
         public IActionResult Sacola()
         {
             string produtosNaSacola = HttpContext.Request.Cookies["ProdutosNaSacola"];
             List<string> produtos = produtosNaSacola?.Split(';').ToList() ?? new List<string>();
 
+            // Ordenar a lista de produtos da sacola pelo nome do produto
+            produtos.Sort();
+
             return View(produtos);
         }
+
+
 
 
 

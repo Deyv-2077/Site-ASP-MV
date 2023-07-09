@@ -88,6 +88,12 @@ app.MapControllerRoute(
     defaults: new { controller = "Products", action = "Vender" });
 
 
+app.MapControllerRoute(
+    name: "venderconfirmado",
+    pattern: "Products/VenderConfirmado",
+    defaults: new { controller = "Products", action = "VenderConfirmado" }); // Verifique se a rota está configurada corretamente
+
+
   //app.MapControllerRoute(
   // name: "ImprimirNumeros",
   //pattern: "Products/ImprimirNumeros",

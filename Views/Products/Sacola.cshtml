@@ -9,42 +9,102 @@
     int totalQuantidade = 0;
 }
 
+<style>
+    .fixed-total {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 20px;
+        background-color: #fff;
+        padding: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        z-index: 9999;
+    }
+</style>
+
+
 <h1>Sacola</h1>
 
-@if (Model.Any())
-{
-    <h3>Produtos na Sacola:</h3>
-    <ul>
-        @foreach (var produto in Model)
+<div class="row">
+    <div class="col-md-8">
+        @if (Model.Any())
         {
-            var detalhes = produto.Split('\n');
-            if (detalhes.Length >= 3)
-            {
-                var nome = detalhes[0];
-                var valorString = detalhes[1].Replace("Valor: R$ ", "");
-                var quantidadeString = detalhes[2].Replace("Quantidade: ", "");
-
-                decimal valor;
-                int quantidade;
-                if (decimal.TryParse(valorString, out valor) && int.TryParse(quantidadeString, out quantidade))
+            <h3>Produtos na Sacola:</h3>
+            <ul>
+                @foreach (var produto in Model)
                 {
-                    total += valor * quantidade;
-                    totalQuantidade += quantidade;
+                    var detalhes = produto.Split('\n');
+                    if (detalhes.Length >= 3)
+                    {
+                        var nome = detalhes[0];
+                        var valorString = detalhes[1].Replace("Valor: R$ ", "");
+                        var quantidadeString = detalhes[2].Replace("Quantidade: ", "");
 
-                    <li>
-                        <p>@nome</p>
-                        <p>Valor: R$ @valorString</p>
-                        <p>Quantidade: @quantidadeString</p>
-                    </li>
+                        decimal valor;
+                        int quantidade;
+                        if (decimal.TryParse(valorString, out valor) && int.TryParse(quantidadeString, out quantidade))
+                        {
+                            total += valor * quantidade;
+                            totalQuantidade += quantidade;
+
+                            <li>
+                                <p>@nome</p>
+                                <p>Valor: R$ @valorString</p>
+                                <p>Quantidade: @quantidadeString</p>
+                            </li>
+
+                            <br /> <!-- Adicione esta linha para criar um espaço entre os itens -->
+                        }
+                    }
                 }
-            }
+            </ul>
         }
-    </ul>
+        else
+        {
+            <p>Nenhum produto na sacola.</p>
+        }
+    </div>
 
-    <p>Total de produtos: @totalQuantidade</p>
-    <p>Total a pagar: R$ @total</p>
-}
-else
-{
-    <p>Nenhum produto na sacola.</p>
+    <div class="col-md-4">
+        <h3>Adicionar mais itens:</h3>
+        <form id="adicionarItemForm" method="post" asp-action="AdicionarItemSacola">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label for="Name" class="control-label">Nome</label>
+                <input name="Name" class="form-control" />
+                <span class="text-danger" data-valmsg-for="Name" data-valmsg-replace="true"></span>
+            </div>
+            <div class="form-group">
+                <label for="Valor" class="control-label">Valor</label>
+                <input name="Valor" class="form-control" />
+                <span class="text-danger" data-valmsg-for="Valor" data-valmsg-replace="true"></span>
+            </div>
+            <div class="form-group">
+                <label for="Quantidade" class="control-label">Quantidade</label>
+                <input name="Quantidade" class="form-control" min="0" />
+                <span class="text-danger" data-valmsg-for="Quantidade" data-valmsg-replace="true"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Adicionar" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="fixed-total">
+    <div class="text-center">
+        <p class="h4">Total de produtos: @totalQuantidade</p>
+        <p class="h4">Total a pagar: R$ @total</p>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("adicionarItemForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            if (confirm("Deseja adicionar este item à sacola?")) {
+                this.submit();
+            }
+        });
+    </script>
 }
