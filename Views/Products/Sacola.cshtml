@@ -1,4 +1,5 @@
-﻿@model List<string>
+﻿@using Microsoft.AspNetCore.Http
+@model List<string>
 
 @{
     Layout = "_LayoutProducts";
@@ -22,7 +23,6 @@
     }
 </style>
 
-
 <h1>Sacola</h1>
 
 <div class="row">
@@ -44,22 +44,21 @@
                         int quantidade;
                         if (decimal.TryParse(valorString, out valor) && int.TryParse(quantidadeString, out quantidade))
                         {
-                            decimal valorUnitario = valor / quantidade; // Calcula o valor unitário
+                            decimal valorUnitario = valor; // Não é mais necessário calcular o valor unitário aqui
                             total += valorUnitario * quantidade; // Multiplica o valor unitário pela quantidade
                             totalQuantidade += quantidade;
 
-                            <li>
+                            <li class="item-sacola">
                                 <p>@nome</p>
                                 <p>Valor: R$ @valorString</p>
                                 <p>Quantidade: @quantidadeString</p>
-                                <button class="btn btn-sm btn-danger remove-item" data-name="@nome" data-valor="@valorString" data-quantidade="@quantidadeString">Remover</button>
+                                <button class="btn btn-sm btn-danger remove-item">Remover</button>
                             </li>
 
                             <br /> <!-- Adicione esta linha para criar um espaço entre os itens -->
                         }
                     }
                 }
-
             </ul>
         }
         else
@@ -96,33 +95,69 @@
 
 <div class="fixed-total" id="fixedTotal">
     <div class="text-center">
-        <p class="h4">Total de produtos: @totalQuantidade</p>
-        <p class="h4">Total a pagar: R$ @total</p>
+        <p class="h4">Total de produtos: <span id="totalQuantidade">@totalQuantidade</span></p>
+        <p class="h4">Total a pagar: R$ <span id="totalValor">@total</span></p>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        document.querySelectorAll('.remove-item').forEach(function (button) {
-            button.addEventListener('click', function (e) {
-                e.preventDefault();
-                if (confirm('Deseja remover este item da sacola?')) {
-                    var li = button.parentNode;
-                    var nome = button.dataset.name;
-                    var valorString = button.dataset.valor;
-                    var quantidadeString = button.dataset.quantidade;
+        function atualizarTotal() {
+            var total = 0;
+            var totalQuantidade = 0;
+            var itens = document.querySelectorAll('.item-sacola');
 
-                    // Remover o item da lista visualmente
-                    li.parentNode.removeChild(li);
+            itens.forEach(function (item) {
+                var valorString = item.querySelector('p:nth-child(2)').textContent.replace("Valor: R$ ", "");
+                var quantidadeString = item.querySelector('p:nth-child(3)').textContent.replace("Quantidade: ", "");
 
-                    // Atualizar o total e a quantidade
-                    total -= parseFloat(valorString.replace(',', '.')) * parseInt(quantidadeString);
-                    totalQuantidade -= parseInt(quantidadeString);
+                var valor = parseFloat(valorString.replace(',', '.'));
+                var quantidade = parseInt(quantidadeString);
 
-                    // Atualizar o texto do total e da quantidade
-                    document.querySelector('#fixedTotal .h4:first-child').textContent = 'Total de produtos: ' + totalQuantidade;
-                    document.querySelector('#fixedTotal .h4:last-child').textContent = 'Total a pagar: R$ ' + total.toFixed(2);
-                }
+                total += valor * quantidade;
+                totalQuantidade += quantidade;
+            });
+
+            var totalElement = document.getElementById('totalValor');
+            var totalQuantidadeElement = document.getElementById('totalQuantidade');
+
+            totalElement.textContent = total.toFixed(2);
+            totalQuantidadeElement.textContent = totalQuantidade;
+        }
+
+        function removeItem(button) {
+            var li = button.parentNode;
+            var nome = li.querySelector('p:nth-child(1)').textContent.trim();
+
+            // Remover o item do cookie correspondente ao nome
+            document.cookie = nome + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
+            // Atualizar o total
+            var valorString = li.querySelector('p:nth-child(2)').textContent.replace("Valor: R$ ", "");
+            var quantidadeString = li.querySelector('p:nth-child(3)').textContent.replace("Quantidade: ", "");
+            var valor = parseFloat(valorString.replace(',', '.'));
+            var quantidade = parseInt(quantidadeString);
+
+            var totalElement = document.getElementById('totalValor');
+            var totalQuantidadeElement = document.getElementById('totalQuantidade');
+
+            totalElement.textContent = (parseFloat(totalElement.textContent) - valor * quantidade).toFixed(2);
+            totalQuantidadeElement.textContent = parseInt(totalQuantidadeElement.textContent) - quantidade;
+
+            // Remover o item visualmente
+            li.parentNode.removeChild(li);
+        }
+
+        // Atualizar o total quando a página é carregada
+        window.addEventListener('load', function () {
+            atualizarTotal();
+        });
+
+        // Adicionar evento de clique aos botões "Remover"
+        var removeButtons = document.querySelectorAll('.remove-item');
+        removeButtons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                removeItem(this);
             });
         });
 

@@ -127,7 +127,7 @@ namespace MVCApp2.Controllers
             }
             return View(product);
         }
-    
+
 
 
 
@@ -227,7 +227,7 @@ namespace MVCApp2.Controllers
 
                 await _context.SaveChangesAsync();
 
-                decimal valorUnitario = decimal.Parse(Request.Form["Valor"]);
+                decimal valorUnitario = existingProduct.Valor; // Obter o valor unitário do produto
                 var produtoNaSacola = $"{existingProduct.Name}\nValor: R$ {valorUnitario}\nQuantidade: {product.Quantidade}";
 
                 // Obter os produtos da sacola do cookie
@@ -253,9 +253,8 @@ namespace MVCApp2.Controllers
                             if (decimal.TryParse(itemValorString, out itemValor) && int.TryParse(itemQuantidadeString, out itemQuantidade))
                             {
                                 int novaQuantidade = itemQuantidade + product.Quantidade;
-                                decimal novoValor = itemValor + (valorUnitario * product.Quantidade);
 
-                                produtos[i] = $"{existingProduct.Name}\nValor: R$ {novoValor}\nQuantidade: {novaQuantidade}";
+                                produtos[i] = $"{existingProduct.Name}\nValor: R$ {valorUnitario}\nQuantidade: {novaQuantidade}";
 
                                 produtoExistente = true;
                                 break;
@@ -272,15 +271,21 @@ namespace MVCApp2.Controllers
                 // Armazenar a lista de produtos da sacola em um cookie
                 HttpContext.Response.Cookies.Append("ProdutosNaSacola", string.Join(";", produtos));
 
+                // Atualizar o total do carrinho
+                decimal valorTotal = decimal.Parse(HttpContext.Request.Cookies["ValorTotal"] ?? "0");
+                int quantidadeTotal = int.Parse(HttpContext.Request.Cookies["QuantidadeTotal"] ?? "0");
+
+                valorTotal += valorUnitario * product.Quantidade;
+                quantidadeTotal += product.Quantidade;
+
+                HttpContext.Response.Cookies.Append("ValorTotal", valorTotal.ToString());
+                HttpContext.Response.Cookies.Append("QuantidadeTotal", quantidadeTotal.ToString());
+
                 return RedirectToAction("Sacola", "Products");
             }
 
             return View(product);
         }
-
-
-
-
 
 
         [HttpPost]
@@ -314,9 +319,8 @@ namespace MVCApp2.Controllers
                         if (decimal.TryParse(itemValorString, out itemValor) && int.TryParse(itemQuantidadeString, out itemQuantidade))
                         {
                             int novaQuantidade = itemQuantidade + int.Parse(quantidadeString);
-                            decimal novoValor = itemValor + (decimal.Parse(valorString) * int.Parse(quantidadeString));
 
-                            produtos[i] = $"{nome}\nValor: R$ {novoValor}\nQuantidade: {novaQuantidade}";
+                            produtos[i] = $"{nome}\nValor: R$ {itemValor}\nQuantidade: {novaQuantidade}";
 
                             produtoExistente = true;
                             break;
@@ -337,6 +341,10 @@ namespace MVCApp2.Controllers
 
             return RedirectToAction("Sacola");
         }
+
+
+
+
 
 
 
@@ -452,14 +460,14 @@ namespace MVCApp2.Controllers
             {
                 _context.Products.Remove(product);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(IndexProducts));
         }
 
         private bool ProductExists(int id)
         {
-          return (_context.Products?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Products?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
