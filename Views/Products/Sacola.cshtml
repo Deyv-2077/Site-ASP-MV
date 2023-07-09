@@ -44,7 +44,8 @@
                         int quantidade;
                         if (decimal.TryParse(valorString, out valor) && int.TryParse(quantidadeString, out quantidade))
                         {
-                            total += valor * quantidade;
+                            decimal valorUnitario = valor / quantidade; // Calcula o valor unitário
+                            total += valorUnitario * quantidade; // Multiplica o valor unitário pela quantidade
                             totalQuantidade += quantidade;
 
                             <li>

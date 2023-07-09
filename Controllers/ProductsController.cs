@@ -215,77 +215,131 @@ namespace MVCApp2.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                var existingProduct = await _context.Products.FindAsync(product.Id);
+
+                if (product.Quantidade > existingProduct.Quantidade)
                 {
-                    var existingProduct = await _context.Products.FindAsync(id);
-                    int quantidadeNoBanco = existingProduct.Quantidade;
-
-                    if (product.Quantidade > quantidadeNoBanco)
-                    {
-                        ModelState.AddModelError("Quantidade", "A quantidade desejada não está disponível.");
-                        return View(product);
-                    }
-
-                    int subtrairQuantidade = quantidadeNoBanco - product.Quantidade;
-                    existingProduct.Quantidade = subtrairQuantidade;
-
-                    _context.Update(existingProduct);
-                    await _context.SaveChangesAsync();
-
-                    var produtoNaSacola = $"{existingProduct.Name}\nValor: R$ {existingProduct.Valor}\nQuantidade: {product.Quantidade}";
-
-                    // Obter os produtos da sacola do cookie
-                    string produtosNaSacola = HttpContext.Request.Cookies["ProdutosNaSacola"];
-                    List<string> produtos = produtosNaSacola?.Split(';').ToList() ?? new List<string>();
-
-                    // Adicionar o novo produto à lista de produtos da sacola
-                    produtos.Add(produtoNaSacola);
-
-                    // Armazenar a lista de produtos da sacola em um cookie
-                    HttpContext.Response.Cookies.Append("ProdutosNaSacola", string.Join(";", produtos));
-
-                    return RedirectToAction("Sacola");
+                    ModelState.AddModelError("Quantidade", "A quantidade desejada não está disponível.");
+                    return View(product);
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductExists(product.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-            }
 
-            return View(product);
-        }
+                existingProduct.Quantidade -= product.Quantidade;
 
+                await _context.SaveChangesAsync();
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult AdicionarItemSacola(Product product)
-        {
-            if (ModelState.IsValid)
-            {
-                var produtoNaSacola = $"{product.Name}\nValor: R$ {product.Valor}\nQuantidade: {product.Quantidade}";
+                decimal valorUnitario = decimal.Parse(Request.Form["Valor"]);
+                var produtoNaSacola = $"{existingProduct.Name}\nValor: R$ {valorUnitario}\nQuantidade: {product.Quantidade}";
 
                 // Obter os produtos da sacola do cookie
                 string produtosNaSacola = HttpContext.Request.Cookies["ProdutosNaSacola"];
                 List<string> produtos = produtosNaSacola?.Split(';').ToList() ?? new List<string>();
 
-                // Adicionar o novo produto à lista de produtos da sacola
-                produtos.Add(produtoNaSacola);
+                bool produtoExistente = false; // Variável para verificar se o item já existe na sacola
+
+                for (int i = 0; i < produtos.Count; i++)
+                {
+                    var detalhes = produtos[i].Split('\n');
+                    if (detalhes.Length >= 3)
+                    {
+                        var itemNome = detalhes[0];
+                        if (itemNome == existingProduct.Name)
+                        {
+                            // O produto com o mesmo nome já existe na sacola
+                            var itemValorString = detalhes[1].Replace("Valor: R$ ", "").Replace(".", ",");
+                            var itemQuantidadeString = detalhes[2].Replace("Quantidade: ", "");
+
+                            decimal itemValor;
+                            int itemQuantidade;
+                            if (decimal.TryParse(itemValorString, out itemValor) && int.TryParse(itemQuantidadeString, out itemQuantidade))
+                            {
+                                int novaQuantidade = itemQuantidade + product.Quantidade;
+                                decimal novoValor = itemValor + (valorUnitario * product.Quantidade);
+
+                                produtos[i] = $"{existingProduct.Name}\nValor: R$ {novoValor}\nQuantidade: {novaQuantidade}";
+
+                                produtoExistente = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!produtoExistente)
+                {
+                    produtos.Add(produtoNaSacola);
+                }
 
                 // Armazenar a lista de produtos da sacola em um cookie
                 HttpContext.Response.Cookies.Append("ProdutosNaSacola", string.Join(";", produtos));
 
-                return RedirectToAction("Sacola");
+                return RedirectToAction("Sacola", "Products");
             }
 
             return View(product);
         }
+
+
+
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AdicionarItemSacola()
+        {
+            var nome = Request.Form["Name"];
+            var valorString = Request.Form["Valor"];
+            var quantidadeString = Request.Form["Quantidade"];
+
+            // Obter os produtos da sacola do cookie
+            string produtosNaSacola = HttpContext.Request.Cookies["ProdutosNaSacola"];
+            List<string> produtos = produtosNaSacola?.Split(';').ToList() ?? new List<string>();
+
+            bool produtoExistente = false; // Variável para verificar se o item já existe na sacola
+
+            for (int i = 0; i < produtos.Count; i++)
+            {
+                var detalhes = produtos[i].Split('\n');
+                if (detalhes.Length >= 3)
+                {
+                    var itemNome = detalhes[0];
+                    if (itemNome == nome)
+                    {
+                        // O produto com o mesmo nome já existe na sacola
+                        var itemValorString = detalhes[1].Replace("Valor: R$ ", "").Replace(".", ",");
+                        var itemQuantidadeString = detalhes[2].Replace("Quantidade: ", "");
+
+                        decimal itemValor;
+                        int itemQuantidade;
+                        if (decimal.TryParse(itemValorString, out itemValor) && int.TryParse(itemQuantidadeString, out itemQuantidade))
+                        {
+                            int novaQuantidade = itemQuantidade + int.Parse(quantidadeString);
+                            decimal novoValor = itemValor + (decimal.Parse(valorString) * int.Parse(quantidadeString));
+
+                            produtos[i] = $"{nome}\nValor: R$ {novoValor}\nQuantidade: {novaQuantidade}";
+
+                            produtoExistente = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!produtoExistente)
+            {
+                var produtoNaSacola = $"{nome}\nValor: R$ {valorString}\nQuantidade: {quantidadeString}";
+
+                produtos.Insert(0, produtoNaSacola);
+            }
+
+            // Armazenar a lista de produtos da sacola em um cookie
+            HttpContext.Response.Cookies.Append("ProdutosNaSacola", string.Join(";", produtos));
+
+            return RedirectToAction("Sacola");
+        }
+
+
+
 
         public IActionResult Sacola()
         {
