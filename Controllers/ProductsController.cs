@@ -232,11 +232,11 @@ namespace MVCApp2.Controllers
                     _context.Update(existingProduct);
                     await _context.SaveChangesAsync();
 
-                    var produtoNaSacola = $"{existingProduct.Name}\nValor: {existingProduct.Valor}\nQuantidade: {product.Quantidade}";
+                    var produtoNaSacola = $"{existingProduct.Name}\nValor: R$ {existingProduct.Valor}\nQuantidade: {product.Quantidade}";
 
                     // Obter os produtos da sacola do cookie
                     string produtosNaSacola = HttpContext.Request.Cookies["ProdutosNaSacola"];
-                    List<string> produtos = produtosNaSacola?.Split(';').ToList() ?? new List<string>();
+                    List<string> produtos = produtosNaSacola?.Split('\n').ToList() ?? new List<string>();
 
                     // Adicionar o novo produto à lista de produtos da sacola
                     produtos.Add(produtoNaSacola);

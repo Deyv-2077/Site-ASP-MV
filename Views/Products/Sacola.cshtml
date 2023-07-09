@@ -2,8 +2,11 @@
 
 @{
     Layout = "_LayoutProducts";
-
     ViewData["Title"] = "Sacola";
+
+    // Variáveis para o cálculo do total
+    decimal total = 0;
+    int totalQuantidade = 0;
 }
 
 <h1>Sacola</h1>
@@ -14,11 +17,32 @@
     <ul>
         @foreach (var produto in Model)
         {
-            <li>
-                <p>@produto</p>
-            </li>
+            var detalhes = produto.Split('\n');
+            if (detalhes.Length >= 3)
+            {
+                var nome = detalhes[0];
+                var valorString = detalhes[1].Replace("Valor: R$ ", "");
+                var quantidadeString = detalhes[2].Replace("Quantidade: ", "");
+
+                decimal valor;
+                int quantidade;
+                if (decimal.TryParse(valorString, out valor) && int.TryParse(quantidadeString, out quantidade))
+                {
+                    total += valor * quantidade;
+                    totalQuantidade += quantidade;
+
+                    <li>
+                        <p>@nome</p>
+                        <p>Valor: R$ @valorString</p>
+                        <p>Quantidade: @quantidadeString</p>
+                    </li>
+                }
+            }
         }
     </ul>
+
+    <p>Total de produtos: @totalQuantidade</p>
+    <p>Total a pagar: R$ @total</p>
 }
 else
 {
