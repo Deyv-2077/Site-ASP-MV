@@ -33,7 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\Usuario\" />
     <Folder Include="Views\Search\" />
   </ItemGroup>
 

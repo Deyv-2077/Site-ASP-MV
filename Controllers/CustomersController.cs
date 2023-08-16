@@ -111,7 +111,7 @@ namespace MVCApp2.Controllers
           //Este método identifica que ao fazer o login, os valores digitados em login e senha serão
             //comparados com os valores que existem no BD e se identificar os valores iguais nas colunas, o login será efetuado
         //mas se tiver valores nulos ou vazios o login não será permitido.
-    public IActionResult Entrar(UserModel2 userModel, UserModel2 userBd)
+    public IActionResult Entrar(UserModel2 userModel)
     {
         if (ModelState.IsValid)
         {

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MVCApp2.Filtros;
 using MVCApp2.Models;
 
-namespace MVCApp2.Controllers
+namespace MVCApp2.Views.Usuario.Trash
 {
     [PaginaParaUsuarioLogado]
 
